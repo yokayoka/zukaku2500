@@ -10,10 +10,16 @@ from pyproj import Transformer
 def main():
     # ページ設定
     st.set_page_config(
-        page_title="test by using streamlit-folium",
+        page_title="国土基本図郭を見つけるサイト",
         layout="wide"
     )
 
+    '''
+    # 国土基本図郭を見つけるサイト
+    
+    国土基本図郭については、
+    [空間情報俱楽部](https://club.informatix.co.jp/?p=1293)を参照ください。
+    '''
     # 平面直角座標系（JGD2011）の EPSGコードを返す関数
     def get_epsgXY_2011(kei: int) -> int:
         return kei + 6668
@@ -80,6 +86,7 @@ def main():
     maps50k = df['name']
     codes_50k = maps50k.values.tolist()
     selected_50k_code = st.sidebar.selectbox('50000図郭一覧',codes_50k)
+    st.sidebar.write('50000図郭を選択したらチェックボックスをチェックしてください。5000図郭が表示されます。')
 
     # 地図の中心の緯度/経度、タイル、初期のズームサイズを指定します。
     m = folium.Map(
@@ -134,7 +141,7 @@ def main():
             # 地図の中心位置の指定
             location= [lat_center50k, lon_center50k], 
             # タイル、アトリビュートの指定
-            #tiles='https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',
+            tiles='https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',
             attr= selected_50k_code,
             # ズームを指定
             zoom_start=10
@@ -154,6 +161,8 @@ def main():
         maps5k = df5k['name']
         codes_5k = maps5k.values.tolist()
         selected_5k_code = st.sidebar.selectbox('5千図郭一覧',codes_5k)
+        st.sidebar.write('5000図郭を選択したらチェックボックスをチェックしてください。2500図郭が表示されます。')
+
 
     if st.sidebar.checkbox('レベル2500図郭表示'):
         #st.sidebar.write(selected_5k_code)
@@ -186,8 +195,8 @@ def main():
             # 地図の中心位置の指定
             location= [lat_center5k, lon_center5k], 
             # タイル、アトリビュートの指定
-            #tiles='https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',
-            attr= selected_50k_code,
+            tiles='https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',
+            attr= selected_5k_code,
             # ズームを指定
             zoom_start=13
         )
