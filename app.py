@@ -52,7 +52,6 @@ def main():
 
     # データフレームの準備
     # 50000レベル図郭の情報を格納するデータフレームの作成
-    #cols = ['name', 'center_x', 'center_y','lon','lat']
     cols = ['name', 'nwcorner_x', 'nwcorner_y', 'center_x', 'center_y','lon','lat']
 
     df = pd.DataFrame(index=[],columns=cols)
@@ -110,8 +109,7 @@ def main():
 
     st_data = st_folium(m, width=400, height=400)
 
-    # もし50000レベル図郭が選択されたら
-    #if(selected_50k_code):
+    # もし、レベル5000図郭表示がチェックされたら
     if st.sidebar.checkbox('レベル5000図郭表示'):
         st.sidebar.write(selected_50k_code)
         nw_origin50k_x, nw_origin50k_y = df[df['name']==selected_50k_code]['nwcorner_x'].iloc[-1], df[df['name']==selected_50k_code]['nwcorner_y'].iloc[-1]
@@ -167,7 +165,7 @@ def main():
         #2500レベルのデータベースの作成
         df2500 = pd.DataFrame(index=[],columns=cols)
         # 5000レベル図郭の中心点の緯度経度の取得
-        lat_center5k, lon_center5k = df5k[df5k['name']==selected_5k_code]['lat'].iloc[-1], df5k[df5k['name']==selected_5k_code]['lon'].iloc[-1]
+        #lat_center5k, lon_center5k = df5k[df5k['name']==selected_5k_code]['lat'].iloc[-1], df5k[df5k['name']==selected_5k_code]['lon'].iloc[-1]
 
         # 4分割図郭のオフセット値の定義
         l_offset2500 = [[0, 0], [2000, 0], [0, -1500],[2000, -1500]]
