@@ -171,8 +171,12 @@ def main():
         # st.sidebar.write(f'{lon_center5k: .4f}')
         # st.sidebar.write(f'{lat_center5k: .4f}')
 
+        # ポリゴン描画用に東西南北の緯度経度の列を追加する
+        corner_cols = ['nw_lon', 'nw_lat', 'ne_lon', 'ne_lat', 'se_lon', 'se_lat', 'sw_lon','sw_lat']
+        cols2500=cols + corner_cols
         #2500レベルのデータベースの作成
-        df2500 = pd.DataFrame(index=[],columns=cols)
+
+        df2500 = pd.DataFrame(index=[],columns=cols2500)
         # 5000レベル図郭の中心点の緯度経度の取得
         #lat_center5k, lon_center5k = df5k[df5k['name']==selected_5k_code]['lat'].iloc[-1], df5k[df5k['name']==selected_5k_code]['lon'].iloc[-1]
 
@@ -186,8 +190,14 @@ def main():
             code = selected_5k_code + str(i+1)
             center_x, center_y = nwcorner_x + 1000, nwcorner_y - 750
             lat,lon = transformer.transform(center_y, center_x)
-            new_data = [[code, nwcorner_x, nwcorner_y, center_x, center_y, lon, lat]]
-            df_newrow = pd.DataFrame(new_data,columns=cols)
+            # 東西南北単の座標を緯度経度に変換
+            nw_lat, nw_lon = transformer.transform(center_y + 750, center_x - 1000)
+            ne_lat, ne_lon = transformer.transform(center_y + 750, center_x + 1000)
+            se_lat, se_lon = transformer.transform(center_y - 750, center_x + 1000)
+            sw_lat, sw_lon = transformer.transform(center_y - 750, center_x - 1000)
+            new_data = [[code, nwcorner_x, nwcorner_y, center_x, center_y, lon, lat, nw_lon, nw_lat, ne_lon, ne_lat, se_lon, se_lat, sw_lon, sw_lat]]
+            #new_data = [[code, nwcorner_x, nwcorner_y, center_x, center_y, lon, lat]]
+            df_newrow = pd.DataFrame(new_data,columns=cols2500)
             df2500 = pd.concat([df2500, df_newrow], axis=0)
 
         # 2500レベル図郭描画用のマップの設定
@@ -202,11 +212,23 @@ def main():
         )
 
         # マーカープロット
+        # for i, row in df2500.iterrows():
+        #     folium.Marker(
+        #         location=[row['lat'], row['lon']],
+        #         popup=row['name'],
+        #         icon=folium.Icon(color='red')
+        #     ).add_to(m3)
+
         for i, row in df2500.iterrows():
-            folium.Marker(
-                location=[row['lat'], row['lon']],
-                popup=row['name'],
-                icon=folium.Icon(color='red')
+            nw, ne, se, sw = (row['nw_lat'], row['nw_lon']), (row['ne_lat'], row['ne_lon']), (row['se_lat'], row['se_lon']), (row['sw_lat'], row['sw_lon'])
+            corners = [nw, ne, se, sw]
+            folium.Polygon(
+                locations = corners,
+                popup = row['name'],
+                color="red", # 線の色
+                weight=3, # 線の太さ
+                fill=True, # 塗りつぶす
+                #fill_opacity=0.1 # 透明度（1=不透明）
             ).add_to(m3)
 
         st_data = st_folium(m3, width=400, height=400)
